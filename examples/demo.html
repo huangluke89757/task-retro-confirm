@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>任务复盘 · 待确认事项</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 20px 56px;
+    font-family: "PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;
+    background: linear-gradient(180deg,#f5f7fa 0%,#eef1f6 100%);
+    color: #1f2d3d;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { font-size: 23px; margin: 0 0 4px; font-weight: 700; }
+  .lead { color: #6b7785; font-size: 13px; line-height: 1.7; margin-bottom: 18px; }
+  .sec-title { display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; margin: 26px 0 12px; }
+  .sec-title .tag { font-size:12px; font-weight:600; padding:2px 9px; border-radius:20px; }
+  .tag-m { background:#e7f0ff; color:#1565d8; }
+  .tag-s { background:#eafaef; color:#1a9c5b; }
+  .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin: 14px 0 6px; }
+  .btn {
+    border:1px solid #d6deea; background:#fff; color:#41505f; padding:8px 14px;
+    border-radius:8px; font-size:13px; cursor:pointer; font-weight:600; transition:.15s;
+  }
+  .btn:hover { border-color:#9bb4d8; color:#1565d8; }
+  .btn.primary { background:#1565d8; border-color:#1565d8; color:#fff; }
+  .btn.primary:hover { background:#0f56bd; }
+  .card {
+    background:#fff; border:1px solid #e7ebf1; border-radius:12px; padding:14px 16px;
+    margin-bottom:12px; box-shadow:0 2px 10px rgba(31,45,61,.04); transition:.15s;
+  }
+  .card.checked { border-color:#1565d8; box-shadow:0 2px 14px rgba(21,101,216,.12); }
+  .card-head { display:flex; align-items:flex-start; gap:10px; cursor:pointer; }
+  .card-head input { margin-top:4px; width:17px; height:17px; cursor:pointer; flex:0 0 auto; }
+  .card-id { font-size:11px; font-weight:700; color:#fff; background:#41505f; border-radius:5px; padding:1px 7px; margin-right:2px; }
+  .card-title { font-size:15px; font-weight:700; color:#1f2d3d; }
+  .card-why { font-size:13px; color:#6b7785; margin:6px 0 0 27px; line-height:1.65; }
+  .prompt-box { display:none; margin:12px 0 0 27px; }
+  .prompt-box.show { display:block; }
+  .prompt-label { font-size:12px; font-weight:700; color:#1565d8; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
+  textarea {
+    width:100%; min-height:118px; resize:vertical; border:1px solid #dfe5ee; border-radius:8px;
+    padding:10px 12px; font-size:12.5px; line-height:1.6; color:#2b3a49; font-family:"SFMono-Regular",Consolas,"Microsoft YaHei",monospace;
+    background:#fafbfd;
+  }
+  .copy-mini { border:none; background:transparent; color:#1565d8; font-size:12px; font-weight:700; cursor:pointer; padding:0; }
+  .copy-mini:hover { text-decoration:underline; }
+  .summary { margin-top:8px; }
+  .summary textarea { background:#fbfdff; }
+  .note { font-size:12px; color:#8a96a3; margin-top:14px; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>任务复盘 · 待确认事项</h1>
+  <div class="lead">
+来源任务：基于「两类无质检状态接收时间数据_去重后统计表.xlsx」的「无质检状态接收时间物的料批次明细」工作表，按「入库时间」列输出按月分组柱形分布趋势图（每月三柱：第一类 / 第二类 / 两类合计），支持年份筛选的 HTML。
+下方列出可沉淀为长期记忆与可抽象为 Skill 的候选点。勾选后展开对应可执行提示词，可直接复制落地。
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" onclick="selectAll(true)">全选</button>
+    <button class="btn" onclick="selectAll(false)">清空</button>
+    <button class="btn" onclick="copyChecked()">复制已勾选提示词</button>
+    <button class="btn primary" onclick="buildSummary()">生成确认清单</button>
+  </div>
+
+  <div class="sec-title"><span class="tag tag-m">记忆</span> 可沉淀进 WorkBuddy 长期记忆的点</div>
+  <div id="memList"></div>
+
+  <div class="sec-title"><span class="tag tag-s">Skill</span> 可抽象成 Skill 的点</div>
+  <div id="skillList"></div>
+
+  <div class="card summary">
+    <div class="prompt-label">确认清单（勾选项汇总，可直接发给 AI 执行）<span class="copy-mini" onclick="copySummary()">复制</span></div>
+    <textarea id="summaryBox" readonly placeholder="点击「生成确认清单」后在此显示…"></textarea>
+  </div>
+
+  <div class="note">
+    说明：本页为<strong>待确认</strong>用途，不会自动写入任何记忆或创建 Skill。勾选并复制提示词后，由你确认再执行。
+  </div>
+</div>
+
+<script>
+const RETRO_DATA = {"items": [{"id": "M1", "type": "memory", "title": "WMS「无质检状态接收时间」是 recurring 分析需求", "why": "用户反复要做这类批次分析。固化源表结构，下次不用重新摸列、不用再问口径。", "prompt": "【写入长期记忆】\n请把以下内容追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## WMS 无质检状态接收时间批次分析（recurring 需求）\n- 源数据：Excel 工作表「无质检状态接收时间物的料批次明细」\n- 关键列：类别、入库时间、质检状态接收时间、库存组织、仓库、物料编码、质检报告单\n- 两类口径：第一类 = 有质检报告 + 无质检状态接收时间；第二类 = 无质检报告 + 无质检状态接收时间\n- 合计 = 第一类 + 第二类\n- 注意：明细表常混入非数据行（空类别行、「内容由AI生成，仅供参考」备注行），聚合前须按「类别」白名单过滤"}, {"id": "M2", "type": "memory", "title": "Excel → 自包含 HTML 出交互图标准流程（openpyxl + ECharts 内联）", "why": "给 xlsx 出交互图是高频动作。固化「读表→聚合→内联 ECharts 单文件」链路，保证离线可用、不依赖 CDN。", "prompt": "【写入长期记忆】\n请把以下方法论追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## Excel 出交互图标准流程（可复用）\n1. 用 managed Python venv（C:\\Users\\Sxg\\.workbuddy\\binaries\\python\\envs\\default，已装 openpyxl）以 openpyxl 读 xlsx\n2. 先按业务字段（如「类别」）白名单过滤非数据行\n3. 按维度（日期列解析 年/月、分类列）聚合为 JSON\n4. 下载 echarts.min.js 并内联进单文件 HTML，保证离线可用（避免 CDN 依赖）\n5. 年份/类别筛选用纯 JS 重渲：chart.setOption(option, true)\n- 交付同时附带分月明细表作离线兜底"}, {"id": "M3", "type": "memory", "title": "WMS 导出表必含非数据行，聚合前先过滤", "why": "本次 1249 行混入 2 行垃圾（空类别 + AI 备注行）。这是通用坑，值得固化为清洗铁律。", "prompt": "【写入长期记忆】\n请把以下清洗经验追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## 数据清洗铁律（WMS / ERP 导出表）\n- 明细表常混入非数据行：空类别行、「内容由AI生成，仅供参考」备注行、合计行等\n- 聚合统计前，必须先按业务主键/类别字段做白名单过滤（如 类别 ∈ {第一类, 第二类}）\n- 过滤后再计数，否则会污染「合计」「占比」等所有下游指标"}, {"id": "S1", "type": "skill", "title": "excel-monthly-bar-chart（通用：xlsx → 月度分组柱形图 + 年份筛选）", "why": "最通用的抽象：任意 xlsx + 日期列 + 分类列，即出可筛选的自包含 HTML 图。复用本次 build_html.py。", "prompt": "【创建通用 Skill】\n请基于以下规格创建一个 WorkBuddy skill，名称建议：excel-monthly-bar-chart\n\n- 触发：用户给出 xlsx 并要求「按月分布柱形图 / 趋势图」，且要求按年份筛选\n- 输入参数：工作表名、日期列名、分类列名、数值口径（默认=计数）\n- 流程：\n  ① managed Python venv 用 openpyxl 读指定 sheet，按业务字段过滤非数据行\n  ② 按日期列解析 年/月，按分类列分组计数\n  ③ 聚合为 JSON\n  ④ 下载 echarts.min.js 并内联进单文件 HTML（离线可用）\n  ⑤ 年份按钮筛选 + 分类分组柱形图（每月多柱）+ 分月明细表兜底\n- 交付：SKILL.md + 可复用 build 脚本，输出自包含 HTML"}, {"id": "S2", "type": "skill", "title": "wms-noqc-batch-analysis（领域专用：无质检状态接收时间批次分析）", "why": "把本次任务的列映射、两类定义、合计口径、剔除规则全部固化，下次一键出图，零重复沟通。", "prompt": "【创建领域 Skill】\n请创建一个 WorkBuddy skill，名称：wms-noqc-batch-analysis\n\n- 用途：分析「无质检状态接收时间物的料批次明细」工作表\n- 固化映射：\n  · 类别字段两类定义：第一类=有质检报告+无质检状态接收时间；第二类=无质检报告+无质检状态接收时间\n  · 日期列=入库时间；合计=第一类+第二类\n  · 剔除规则：类别白名单过滤（排除空类别、AI备注行等非数据行）\n- 输出：月度分布 HTML（年份筛选，每月三柱：第一类/第二类/合计 + 分月明细表）\n- 可复用 excel-monthly-bar-chart 的 build 骨架"}, {"id": "S3", "type": "skill", "title": "task-retro-confirm（元 Skill，可选：复盘→待确认事项 HTML）", "why": "把「复盘→产出可勾选+可执行提示词的确认页」这套交互本身固化，以后每次任务收尾直接复用。", "prompt": "【创建元 Skill（可选）】\n请创建一个 WorkBuddy skill，名称：task-retro-confirm\n\n- 用途：任务完成后，自动把「可沉淀为长期记忆的点」与「可抽象为 Skill 的点」整理成一张「待确认事项」HTML\n- 要求：\n  · HTML 提供可勾选项（记忆类 / Skill 类分区）\n  · 勾选后直接展开对应的「可执行提示词」（写记忆 / 建 skill 的具体指令）\n  · 支持单条复制 + 一键复制全部已勾选 + 生成确认清单\n  · 纯前端、无外部依赖、离线可用\n- 复用本次 deliverable（任务复盘_待确认事项.html）的交互骨架与样式"}]};
+
+function render(){
+  const items = RETRO_DATA.items || [];
+  const mem = document.getElementById("memList");
+  const sk = document.getElementById("skillList");
+  mem.innerHTML = ""; sk.innerHTML = "";
+  items.forEach(it=>{
+    const box = it.type === "memory" ? mem : sk;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = "card-"+it.id;
+    card.innerHTML = `
+      <label class="card-head">
+        <input type="checkbox" onchange="toggle('${it.id}', this.checked)">
+        <span><span class="card-id">${it.id}</span><span class="card-title">${it.title}</span></span>
+      </label>
+      <div class="card-why">${it.why}</div>
+      <div class="prompt-box" id="pb-${it.id}">
+        <div class="prompt-label">可执行提示词（勾选后可用）<span class="copy-mini" onclick="copyOne('${it.id}')">复制</span></div>
+        <textarea id="ta-${it.id}" readonly>${it.prompt}</textarea>
+      </div>`;
+    box.appendChild(card);
+  });
+}
+
+function toggle(id, checked){
+  document.getElementById("pb-"+id).classList.toggle("show", checked);
+  document.getElementById("card-"+id).classList.toggle("checked", checked);
+}
+
+function selectAll(v){
+  (RETRO_DATA.items||[]).forEach(it=>{
+    const cb = document.querySelector(`#card-${it.id} input`);
+    cb.checked = v; toggle(it.id, v);
+  });
+}
+
+function copyOne(id){
+  const ta = document.getElementById("ta-"+id);
+  copyText(ta.value);
+}
+
+function copyChecked(){
+  const sel = (RETRO_DATA.items||[]).filter(it=>document.querySelector(`#card-${it.id} input`).checked);
+  if(!sel.length){ alert("请先勾选至少一项"); return; }
+  const txt = sel.map(it=>`【${it.id}】${it.title}\n${it.prompt}`).join("\n\n－－－－－－\n\n");
+  copyText(txt);
+}
+
+function buildSummary(){
+  const sel = (RETRO_DATA.items||[]).filter(it=>document.querySelector(`#card-${it.id} input`).checked);
+  if(!sel.length){ alert("请先勾选至少一项"); return; }
+  let out = "请执行以下已确认的复盘沉淀项：\n\n";
+  sel.forEach(it=>{ out += `【${it.id}】${it.title}\n${it.prompt}\n\n`; });
+  document.getElementById("summaryBox").value = out.trim();
+  document.getElementById("summaryBox").scrollIntoView({behavior:"smooth"});
+}
+
+function copySummary(){
+  const v = document.getElementById("summaryBox").value;
+  if(!v){ alert("请先点「生成确认清单」"); return; }
+  copyText(v);
+}
+
+function copyText(t){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>alert("已复制到剪贴板"), ()=>fallbackCopy(t));
+  } else { fallbackCopy(t); }
+}
+function fallbackCopy(t){
+  const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta);
+  ta.select(); try{document.execCommand("copy"); alert("已复制");}catch(e){alert("复制失败，请手动选择");}
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>

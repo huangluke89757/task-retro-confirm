@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px 20px 56px;
+    font-family: "PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;
+    background: linear-gradient(180deg,#f5f7fa 0%,#eef1f6 100%);
+    color: #1f2d3d;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { font-size: 23px; margin: 0 0 4px; font-weight: 700; }
+  .lead { color: #6b7785; font-size: 13px; line-height: 1.7; margin-bottom: 18px; }
+  .sec-title { display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; margin: 26px 0 12px; }
+  .sec-title .tag { font-size:12px; font-weight:600; padding:2px 9px; border-radius:20px; }
+  .tag-m { background:#e7f0ff; color:#1565d8; }
+  .tag-s { background:#eafaef; color:#1a9c5b; }
+  .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin: 14px 0 6px; }
+  .btn {
+    border:1px solid #d6deea; background:#fff; color:#41505f; padding:8px 14px;
+    border-radius:8px; font-size:13px; cursor:pointer; font-weight:600; transition:.15s;
+  }
+  .btn:hover { border-color:#9bb4d8; color:#1565d8; }
+  .btn.primary { background:#1565d8; border-color:#1565d8; color:#fff; }
+  .btn.primary:hover { background:#0f56bd; }
+  .card {
+    background:#fff; border:1px solid #e7ebf1; border-radius:12px; padding:14px 16px;
+    margin-bottom:12px; box-shadow:0 2px 10px rgba(31,45,61,.04); transition:.15s;
+  }
+  .card.checked { border-color:#1565d8; box-shadow:0 2px 14px rgba(21,101,216,.12); }
+  .card-head { display:flex; align-items:flex-start; gap:10px; cursor:pointer; }
+  .card-head input { margin-top:4px; width:17px; height:17px; cursor:pointer; flex:0 0 auto; }
+  .card-id { font-size:11px; font-weight:700; color:#fff; background:#41505f; border-radius:5px; padding:1px 7px; margin-right:2px; }
+  .card-title { font-size:15px; font-weight:700; color:#1f2d3d; }
+  .card-why { font-size:13px; color:#6b7785; margin:6px 0 0 27px; line-height:1.65; }
+  .prompt-box { display:none; margin:12px 0 0 27px; }
+  .prompt-box.show { display:block; }
+  .prompt-label { font-size:12px; font-weight:700; color:#1565d8; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
+  textarea {
+    width:100%; min-height:118px; resize:vertical; border:1px solid #dfe5ee; border-radius:8px;
+    padding:10px 12px; font-size:12.5px; line-height:1.6; color:#2b3a49; font-family:"SFMono-Regular",Consolas,"Microsoft YaHei",monospace;
+    background:#fafbfd;
+  }
+  .copy-mini { border:none; background:transparent; color:#1565d8; font-size:12px; font-weight:700; cursor:pointer; padding:0; }
+  .copy-mini:hover { text-decoration:underline; }
+  .summary { margin-top:8px; }
+  .summary textarea { background:#fbfdff; }
+  .note { font-size:12px; color:#8a96a3; margin-top:14px; line-height:1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>__TITLE__</h1>
+  <div class="lead">
+__LEAD__
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" onclick="selectAll(true)">全选</button>
+    <button class="btn" onclick="selectAll(false)">清空</button>
+    <button class="btn" onclick="copyChecked()">复制已勾选提示词</button>
+    <button class="btn primary" onclick="buildSummary()">生成确认清单</button>
+  </div>
+
+  <div class="sec-title"><span class="tag tag-m">记忆</span> 可沉淀进 WorkBuddy 长期记忆的点</div>
+  <div id="memList"></div>
+
+  <div class="sec-title"><span class="tag tag-s">Skill</span> 可抽象成 Skill 的点</div>
+  <div id="skillList"></div>
+
+  <div class="card summary">
+    <div class="prompt-label">确认清单（勾选项汇总，可直接发给 AI 执行）<span class="copy-mini" onclick="copySummary()">复制</span></div>
+    <textarea id="summaryBox" readonly placeholder="点击「生成确认清单」后在此显示…"></textarea>
+  </div>
+
+  <div class="note">
+    说明：本页为<strong>待确认</strong>用途，不会自动写入任何记忆或创建 Skill。勾选并复制提示词后，由你确认再执行。
+  </div>
+</div>
+
+<script>
+const RETRO_DATA = __DATA__;
+
+function render(){
+  const items = RETRO_DATA.items || [];
+  const mem = document.getElementById("memList");
+  const sk = document.getElementById("skillList");
+  mem.innerHTML = ""; sk.innerHTML = "";
+  items.forEach(it=>{
+    const box = it.type === "memory" ? mem : sk;
+    const card = document.createElement("div");
+    card.className = "card";
+    card.id = "card-"+it.id;
+    card.innerHTML = `
+      <label class="card-head">
+        <input type="checkbox" onchange="toggle('${it.id}', this.checked)">
+        <span><span class="card-id">${it.id}</span><span class="card-title">${it.title}</span></span>
+      </label>
+      <div class="card-why">${it.why}</div>
+      <div class="prompt-box" id="pb-${it.id}">
+        <div class="prompt-label">可执行提示词（勾选后可用）<span class="copy-mini" onclick="copyOne('${it.id}')">复制</span></div>
+        <textarea id="ta-${it.id}" readonly>${it.prompt}</textarea>
+      </div>`;
+    box.appendChild(card);
+  });
+}
+
+function toggle(id, checked){
+  document.getElementById("pb-"+id).classList.toggle("show", checked);
+  document.getElementById("card-"+id).classList.toggle("checked", checked);
+}
+
+function selectAll(v){
+  (RETRO_DATA.items||[]).forEach(it=>{
+    const cb = document.querySelector(`#card-${it.id} input`);
+    cb.checked = v; toggle(it.id, v);
+  });
+}
+
+function copyOne(id){
+  const ta = document.getElementById("ta-"+id);
+  copyText(ta.value);
+}
+
+function copyChecked(){
+  const sel = (RETRO_DATA.items||[]).filter(it=>document.querySelector(`#card-${it.id} input`).checked);
+  if(!sel.length){ alert("请先勾选至少一项"); return; }
+  const txt = sel.map(it=>`【${it.id}】${it.title}\n${it.prompt}`).join("\n\n－－－－－－\n\n");
+  copyText(txt);
+}
+
+function buildSummary(){
+  const sel = (RETRO_DATA.items||[]).filter(it=>document.querySelector(`#card-${it.id} input`).checked);
+  if(!sel.length){ alert("请先勾选至少一项"); return; }
+  let out = "请执行以下已确认的复盘沉淀项：\n\n";
+  sel.forEach(it=>{ out += `【${it.id}】${it.title}\n${it.prompt}\n\n`; });
+  document.getElementById("summaryBox").value = out.trim();
+  document.getElementById("summaryBox").scrollIntoView({behavior:"smooth"});
+}
+
+function copySummary(){
+  const v = document.getElementById("summaryBox").value;
+  if(!v){ alert("请先点「生成确认清单」"); return; }
+  copyText(v);
+}
+
+function copyText(t){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(()=>alert("已复制到剪贴板"), ()=>fallbackCopy(t));
+  } else { fallbackCopy(t); }
+}
+function fallbackCopy(t){
+  const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta);
+  ta.select(); try{document.execCommand("copy"); alert("已复制");}catch(e){alert("复制失败，请手动选择");}
+  document.body.removeChild(ta);
+}
+
+render();
+</script>
+</body>
+</html>
