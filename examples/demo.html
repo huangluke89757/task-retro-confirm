@@ -7,59 +7,159 @@
 <style>
   * { box-sizing: border-box; }
   body {
-    margin: 0; padding: 28px 20px 56px;
+    margin: 0; padding: 26px 20px 60px;
     font-family: "PingFang SC","Microsoft YaHei",-apple-system,"Segoe UI",sans-serif;
     background: linear-gradient(180deg,#f5f7fa 0%,#eef1f6 100%);
     color: #1f2d3d;
   }
-  .wrap { max-width: 920px; margin: 0 auto; }
+  .wrap { max-width: 960px; margin: 0 auto; }
   h1 { font-size: 23px; margin: 0 0 4px; font-weight: 700; }
-  .lead { color: #6b7785; font-size: 13px; line-height: 1.7; margin-bottom: 18px; }
-  .sec-title { display:flex; align-items:center; gap:10px; font-size:16px; font-weight:700; margin: 26px 0 12px; }
-  .sec-title .tag { font-size:12px; font-weight:600; padding:2px 9px; border-radius:20px; }
-  .tag-m { background:#e7f0ff; color:#1565d8; }
-  .tag-s { background:#eafaef; color:#1a9c5b; }
-  .toolbar { display:flex; gap:10px; flex-wrap:wrap; margin: 14px 0 6px; }
+  h2 { font-size: 16px; margin: 0 0 12px; font-weight: 700; display:flex; align-items:center; gap:8px; }
+  .lead { color: #6b7785; font-size: 13px; line-height: 1.75; margin-bottom: 18px; white-space: pre-line; }
+  .panel { background:#fff; border:1px solid #e7ebf1; border-radius:14px; padding:18px 20px; margin-bottom:16px;
+           box-shadow:0 2px 12px rgba(31,45,61,.045); }
+
+  /* ---------- 复盘笔记 ---------- */
+  .note-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+  .taskline { font-size:13px; color:#41505f; background:#f3f6fb; border-left:3px solid #1565d8;
+              padding:8px 12px; border-radius:0 8px 8px 0; margin:10px 0 14px; line-height:1.6; }
+  .taskline b { color:#1565d8; }
+  .layer { border-top:1px dashed #e7ebf1; padding-top:12px; margin-top:12px; }
+  .layer:first-of-type { border-top:none; padding-top:0; margin-top:0; }
+  .layer-h { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#2b3a49; margin-bottom:8px; }
+  .lv { font-size:10.5px; font-weight:800; color:#fff; background:#41505f; border-radius:4px; padding:1px 6px; letter-spacing:.3px; }
+  .lv.l4 { background:#7c5cd6; }
+  .layer-sub { font-size:11.5px; color:#8a96a3; font-weight:400; }
+
+  .fitem { display:flex; gap:9px; padding:7px 0; font-size:13px; line-height:1.65; }
+  .fitem .no { flex:0 0 auto; width:18px; height:18px; border-radius:50%; background:#eef1f6;
+               color:#5b6675; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:2px; }
+  .fitem .txt { flex:1; }
+  .fitem .ev { display:inline-block; font-size:11.5px; color:#1a7f5a; background:#eefaf3;
+               border:1px solid #d3f0e0; border-radius:5px; padding:1px 7px; margin-top:5px; line-height:1.6; }
+  .fitem .ev.miss { color:#b45309; background:#fff8ec; border-color:#f5e0bd; }
+  .fitem .rc { font-size:11px; font-weight:700; color:#7c5cd6; background:#f3efff; border-radius:4px; padding:1px 6px; margin-right:6px; }
+  .fitem .fixline { font-size:12.5px; color:#6b7785; margin-top:4px; }
+  .fitem .fixline b { color:#1f2d3d; }
+  .firststep { font-size:14px; font-weight:700; color:#0f4fa8; background:#f2f7ff;
+               border:1px solid #dbe8fb; border-radius:9px; padding:11px 14px; line-height:1.6; }
+  .empty { font-size:12.5px; color:#a8b2be; font-style:italic; }
+
+  /* ---------- 差异对比台 ---------- */
+  .vq { font-size:13px; color:#41505f; margin-bottom:12px; line-height:1.6; }
+  .vq b { color:#7c5cd6; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  .vt th, .vt td { border:1px solid #eceff3; padding:8px 10px; text-align:left; vertical-align:top; }
+  .vt thead th { background:#f3f6fb; color:#41505f; font-weight:700; }
+  .vt tbody tr:nth-child(even) { background:#fafbfd; }
+  .vt td.nm { font-weight:700; color:#2b3a49; white-space:nowrap; }
+  .vt td.note { color:#6b7785; font-size:12px; }
+  .verdict { margin-top:12px; font-size:13px; line-height:1.7; color:#2b3a49;
+             background:#f6f3ff; border:1px solid #e4dcfb; border-radius:9px; padding:11px 14px; }
+  .verdict b { color:#7c5cd6; }
+
+  /* ---------- 闸门仪表 ---------- */
+  .gates { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .gate { flex:1 1 140px; background:#fff; border:1px solid #e7ebf1; border-radius:11px; padding:11px 14px; }
+  .gate .gk { font-size:11.5px; color:#6b7785; font-weight:600; }
+  .gate .gv { font-size:20px; font-weight:800; color:#1565d8; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .gate .gs { font-size:11px; color:#9aa5b1; margin-top:1px; }
+  .gate.warn { border-color:#f5d9a8; background:#fffcf5; }
+  .gate.warn .gv { color:#c2740a; }
+  .gate.bad { border-color:#f3c1c1; background:#fff8f8; }
+  .gate.bad .gv { color:#d13b3b; }
+
+  /* ---------- 候选区 ---------- */
+  .sec-title { display:flex; align-items:center; gap:10px; font-size:15px; font-weight:700; margin: 24px 0 11px; }
+  .sec-title .tag { font-size:11.5px; font-weight:700; padding:2px 9px; border-radius:20px; }
+  .sec-title .cnt { font-size:12px; color:#9aa5b1; font-weight:500; margin-left:auto; }
+  .tag-memory { background:#e7f0ff; color:#1565d8; }
+  .tag-skill  { background:#eafaef; color:#1a9c5b; }
+  .tag-prompt { background:#f3efff; color:#7c5cd6; }
+  .tag-manual { background:#fff5e6; color:#c2740a; }
+
+  .toolbar { display:flex; gap:9px; flex-wrap:wrap; margin: 4px 0 6px; }
   .btn {
     border:1px solid #d6deea; background:#fff; color:#41505f; padding:8px 14px;
     border-radius:8px; font-size:13px; cursor:pointer; font-weight:600; transition:.15s;
   }
   .btn:hover { border-color:#9bb4d8; color:#1565d8; }
   .btn.primary { background:#1565d8; border-color:#1565d8; color:#fff; }
-  .btn.primary:hover { background:#0f56bd; }
+  .btn.primary:hover { background:#0f56bd; color:#fff; }
+  .btn.ghost { background:#f7f9fc; }
+
   .card {
     background:#fff; border:1px solid #e7ebf1; border-radius:12px; padding:14px 16px;
-    margin-bottom:12px; box-shadow:0 2px 10px rgba(31,45,61,.04); transition:.15s;
+    margin-bottom:11px; box-shadow:0 2px 10px rgba(31,45,61,.04); transition:.15s;
   }
   .card.checked { border-color:#1565d8; box-shadow:0 2px 14px rgba(21,101,216,.12); }
   .card-head { display:flex; align-items:flex-start; gap:10px; cursor:pointer; }
   .card-head input { margin-top:4px; width:17px; height:17px; cursor:pointer; flex:0 0 auto; }
-  .card-id { font-size:11px; font-weight:700; color:#fff; background:#41505f; border-radius:5px; padding:1px 7px; margin-right:2px; }
-  .card-title { font-size:15px; font-weight:700; color:#1f2d3d; }
-  .card-why { font-size:13px; color:#6b7785; margin:6px 0 0 27px; line-height:1.65; }
+  .card-id { font-size:11px; font-weight:700; color:#fff; background:#41505f; border-radius:5px; padding:1px 7px; margin-right:6px; }
+  .card-title { font-size:14.5px; font-weight:700; color:#1f2d3d; }
+  .card-why { font-size:12.5px; color:#6b7785; margin:7px 0 0 27px; line-height:1.65; }
+  .metas { display:flex; gap:6px; flex-wrap:wrap; margin:7px 0 0 27px; }
+  .meta { font-size:10.5px; font-weight:700; border-radius:5px; padding:1px 7px; line-height:1.7; }
+  .conf-high   { background:#eefaf3; color:#1a7f5a; }
+  .conf-medium { background:#fff8ec; color:#b45309; }
+  .scope-single    { background:#f2f4f7; color:#6b7785; }
+  .scope-recurring { background:#eef4ff; color:#1565d8; }
+  .scope-cross     { background:#f6f3ff; color:#7c5cd6; }
+  .meta-ev { background:#f2f4f7; color:#5b6675; font-weight:600; }
+
   .prompt-box { display:none; margin:12px 0 0 27px; }
   .prompt-box.show { display:block; }
   .prompt-label { font-size:12px; font-weight:700; color:#1565d8; margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
   textarea {
     width:100%; min-height:118px; resize:vertical; border:1px solid #dfe5ee; border-radius:8px;
-    padding:10px 12px; font-size:12.5px; line-height:1.6; color:#2b3a49; font-family:"SFMono-Regular",Consolas,"Microsoft YaHei",monospace;
-    background:#fafbfd;
+    padding:10px 12px; font-size:12.5px; line-height:1.6; color:#2b3a49;
+    font-family:"SFMono-Regular",Consolas,"Microsoft YaHei",monospace; background:#fafbfd;
   }
   .copy-mini { border:none; background:transparent; color:#1565d8; font-size:12px; font-weight:700; cursor:pointer; padding:0; }
   .copy-mini:hover { text-decoration:underline; }
-  .summary { margin-top:8px; }
+  .summary { margin-top:14px; }
   .summary textarea { background:#fbfdff; }
-  .note { font-size:12px; color:#8a96a3; margin-top:14px; line-height:1.7; }
+  .note { font-size:12px; color:#8a96a3; margin-top:16px; line-height:1.75; }
+  .note strong { color:#5b6675; }
+  @media (max-width:640px){
+    body { padding:18px 12px 48px; }
+    .panel { padding:14px; }
+    .vt { display:block; overflow-x:auto; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>任务复盘 · 待确认事项</h1>
-  <div class="lead">
-来源任务：基于「两类无质检状态接收时间数据_去重后统计表.xlsx」的「无质检状态接收时间物的料批次明细」工作表，按「入库时间」列输出按月分组柱形分布趋势图（每月三柱：第一类 / 第二类 / 两类合计），支持年份筛选的 HTML。
-下方列出可沉淀为长期记忆与可抽象为 Skill 的候选点。勾选后展开对应可执行提示词，可直接复制落地。
+  <div class="lead">本次任务：从零构建一个 WorkBuddy 专家包（Agent + 4 技能），再用真实数据跑通验收，产出 16:9 铺满看板 HTML。
+复盘价值在于——这次既踩了「工具自检误报」，也踩了「自己的媒体查询把自己判成窄屏」，两类问题的根因完全不同，对策也不同。
+下方按四层深度整理，四类沉淀候选可勾选后直接复制落地。</div>
+
+  <!-- ============ 复盘笔记 ============ -->
+  <div class="panel" id="notePanel">
+    <div class="note-head">
+      <h2 style="margin:0">复盘笔记 <span class="layer-sub">四层深度 · 每条一句话</span></h2>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost" onclick="copyNote()">复制复盘笔记</button>
+        <button class="btn ghost" onclick="copyRetroPrompt()">复制复盘提示词</button>
+      </div>
+    </div>
+    <div class="taskline">任务：<b id="taskLine">—</b></div>
+    <div id="layers"></div>
   </div>
 
+  <!-- ============ 差异对比台 ============ -->
+  <div class="panel" id="vPanel" style="display:none">
+    <h2>差异对比台 <span class="layer-sub">Harness² · 比差量不比绝对分</span></h2>
+    <div class="vq">核心问题：<b id="vQuestion">—</b></div>
+    <div class="vt" id="vTable"></div>
+    <div class="verdict" id="vVerdict"></div>
+  </div>
+
+  <!-- ============ 闸门 ============ -->
+  <div class="gates" id="gates"></div>
+
+  <!-- ============ 工具栏 ============ -->
   <div class="toolbar">
     <button class="btn" onclick="selectAll(true)">全选</button>
     <button class="btn" onclick="selectAll(false)">清空</button>
@@ -67,11 +167,18 @@
     <button class="btn primary" onclick="buildSummary()">生成确认清单</button>
   </div>
 
-  <div class="sec-title"><span class="tag tag-m">记忆</span> 可沉淀进 WorkBuddy 长期记忆的点</div>
-  <div id="memList"></div>
+  <!-- ============ 四类候选 ============ -->
+  <div class="sec-title"><span class="tag tag-memory">记忆</span>事实与口径，沉进长期记忆<span class="cnt" id="cnt-memory"></span></div>
+  <div id="list-memory"></div>
 
-  <div class="sec-title"><span class="tag tag-s">Skill</span> 可抽象成 Skill 的点</div>
-  <div id="skillList"></div>
+  <div class="sec-title"><span class="tag tag-skill">技能</span>可复用流程，固化成 Skill<span class="cnt" id="cnt-skill"></span></div>
+  <div id="list-skill"></div>
+
+  <div class="sec-title"><span class="tag tag-prompt">提示词</span>改表达方式，流程不变<span class="cnt" id="cnt-prompt"></span></div>
+  <div id="list-prompt"></div>
+
+  <div class="sec-title"><span class="tag tag-manual">改进手册</span>跨任务方法论，写进 playbook<span class="cnt" id="cnt-manual"></span></div>
+  <div id="list-manual"></div>
 
   <div class="card summary">
     <div class="prompt-label">确认清单（勾选项汇总，可直接发给 AI 执行）<span class="copy-mini" onclick="copySummary()">复制</span></div>
@@ -79,68 +186,301 @@
   </div>
 
   <div class="note">
-    说明：本页为<strong>待确认</strong>用途，不会自动写入任何记忆或创建 Skill。勾选并复制提示词后，由你确认再执行。
+    本页为<strong>待确认</strong>用途，不会自动写入任何记忆、改动提示词或创建 Skill。<br>
+    勾选并复制提示词后，由你确认再执行；标 <strong>待验证</strong> 的项建议先小范围试一次再落地。
   </div>
 </div>
 
 <script>
-const RETRO_DATA = {"items": [{"id": "M1", "type": "memory", "title": "WMS「无质检状态接收时间」是 recurring 分析需求", "why": "用户反复要做这类批次分析。固化源表结构，下次不用重新摸列、不用再问口径。", "prompt": "【写入长期记忆】\n请把以下内容追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## WMS 无质检状态接收时间批次分析（recurring 需求）\n- 源数据：Excel 工作表「无质检状态接收时间物的料批次明细」\n- 关键列：类别、入库时间、质检状态接收时间、库存组织、仓库、物料编码、质检报告单\n- 两类口径：第一类 = 有质检报告 + 无质检状态接收时间；第二类 = 无质检报告 + 无质检状态接收时间\n- 合计 = 第一类 + 第二类\n- 注意：明细表常混入非数据行（空类别行、「内容由AI生成，仅供参考」备注行），聚合前须按「类别」白名单过滤"}, {"id": "M2", "type": "memory", "title": "Excel → 自包含 HTML 出交互图标准流程（openpyxl + ECharts 内联）", "why": "给 xlsx 出交互图是高频动作。固化「读表→聚合→内联 ECharts 单文件」链路，保证离线可用、不依赖 CDN。", "prompt": "【写入长期记忆】\n请把以下方法论追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## Excel 出交互图标准流程（可复用）\n1. 用 managed Python venv（C:\\Users\\Sxg\\.workbuddy\\binaries\\python\\envs\\default，已装 openpyxl）以 openpyxl 读 xlsx\n2. 先按业务字段（如「类别」）白名单过滤非数据行\n3. 按维度（日期列解析 年/月、分类列）聚合为 JSON\n4. 下载 echarts.min.js 并内联进单文件 HTML，保证离线可用（避免 CDN 依赖）\n5. 年份/类别筛选用纯 JS 重渲：chart.setOption(option, true)\n- 交付同时附带分月明细表作离线兜底"}, {"id": "M3", "type": "memory", "title": "WMS 导出表必含非数据行，聚合前先过滤", "why": "本次 1249 行混入 2 行垃圾（空类别 + AI 备注行）。这是通用坑，值得固化为清洗铁律。", "prompt": "【写入长期记忆】\n请把以下清洗经验追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## 数据清洗铁律（WMS / ERP 导出表）\n- 明细表常混入非数据行：空类别行、「内容由AI生成，仅供参考」备注行、合计行等\n- 聚合统计前，必须先按业务主键/类别字段做白名单过滤（如 类别 ∈ {第一类, 第二类}）\n- 过滤后再计数，否则会污染「合计」「占比」等所有下游指标"}, {"id": "S1", "type": "skill", "title": "excel-monthly-bar-chart（通用：xlsx → 月度分组柱形图 + 年份筛选）", "why": "最通用的抽象：任意 xlsx + 日期列 + 分类列，即出可筛选的自包含 HTML 图。复用本次 build_html.py。", "prompt": "【创建通用 Skill】\n请基于以下规格创建一个 WorkBuddy skill，名称建议：excel-monthly-bar-chart\n\n- 触发：用户给出 xlsx 并要求「按月分布柱形图 / 趋势图」，且要求按年份筛选\n- 输入参数：工作表名、日期列名、分类列名、数值口径（默认=计数）\n- 流程：\n  ① managed Python venv 用 openpyxl 读指定 sheet，按业务字段过滤非数据行\n  ② 按日期列解析 年/月，按分类列分组计数\n  ③ 聚合为 JSON\n  ④ 下载 echarts.min.js 并内联进单文件 HTML（离线可用）\n  ⑤ 年份按钮筛选 + 分类分组柱形图（每月多柱）+ 分月明细表兜底\n- 交付：SKILL.md + 可复用 build 脚本，输出自包含 HTML"}, {"id": "S2", "type": "skill", "title": "wms-noqc-batch-analysis（领域专用：无质检状态接收时间批次分析）", "why": "把本次任务的列映射、两类定义、合计口径、剔除规则全部固化，下次一键出图，零重复沟通。", "prompt": "【创建领域 Skill】\n请创建一个 WorkBuddy skill，名称：wms-noqc-batch-analysis\n\n- 用途：分析「无质检状态接收时间物的料批次明细」工作表\n- 固化映射：\n  · 类别字段两类定义：第一类=有质检报告+无质检状态接收时间；第二类=无质检报告+无质检状态接收时间\n  · 日期列=入库时间；合计=第一类+第二类\n  · 剔除规则：类别白名单过滤（排除空类别、AI备注行等非数据行）\n- 输出：月度分布 HTML（年份筛选，每月三柱：第一类/第二类/合计 + 分月明细表）\n- 可复用 excel-monthly-bar-chart 的 build 骨架"}, {"id": "S3", "type": "skill", "title": "task-retro-confirm（元 Skill，可选：复盘→待确认事项 HTML）", "why": "把「复盘→产出可勾选+可执行提示词的确认页」这套交互本身固化，以后每次任务收尾直接复用。", "prompt": "【创建元 Skill（可选）】\n请创建一个 WorkBuddy skill，名称：task-retro-confirm\n\n- 用途：任务完成后，自动把「可沉淀为长期记忆的点」与「可抽象为 Skill 的点」整理成一张「待确认事项」HTML\n- 要求：\n  · HTML 提供可勾选项（记忆类 / Skill 类分区）\n  · 勾选后直接展开对应的「可执行提示词」（写记忆 / 建 skill 的具体指令）\n  · 支持单条复制 + 一键复制全部已勾选 + 生成确认清单\n  · 纯前端、无外部依赖、离线可用\n- 复用本次 deliverable（任务复盘_待确认事项.html）的交互骨架与样式"}]};
+const RETRO_DATA = {"title": "任务复盘 · 待确认事项", "task": "为「报表设计专家」建包并用 WMS 无质检批次数据端到端验收，产出 16:9 铺满看板", "scope": "cross", "findings": {"worked": [{"text": "先读参考实现的 agent.md 与技能骨架，再定自己的结构，一次成型没有返工", "evidence": "参照市场里 PowerBI 专家的「Agent + 4 技能」结构，自建包 validate_expert.py 一次通过"}, {"text": "建完立刻用真实数据跑端到端验收，而不是只跑静态校验", "evidence": "用例跑出 1247 条有效批次，暴露 7 个真实问题（静态校验一个都发现不了）"}, {"text": "多分辨率实测覆盖 16:9 / 21:9 / 4:3 三档，而非只看一个尺寸", "evidence": "1600×900、2560×1080、1000×800 三档截图，其中 1000×800 才暴露单列降级后图表塌陷"}], "detours": [{"text": "写 `@media (max-aspect-ratio: 16/9)` 想处理窄屏，结果精确 16:9 也被命中，KPI 被误降为 2 列；同类问题还出现在静态检查脚本把库源码 `isNaN` 误判为 `NaN`", "rootCause": "判断错误", "fix": "断点必须严格小于目标比例（改用 8/5）；检查脚本先剥离第三方库再匹配字面量。两者都属「判据没对准边界」"}], "firstStep": "先跑一遍 check_report.py 静态体检拿到基线，再截图看真实布局 —— 先静态后视觉，避免用眼睛代替检查", "meta": "该改的是「技能」这一环：把多分辨率实测 + 断点边界校验写成 report-delivery-qa 里的固定步骤，而不是每次靠记性。"}, "variants": {"question": "页面视觉验收用哪种方式：只看 16:9 一档，还是多档截图？", "dims": ["发现问题数", "耗时", "覆盖风险", "可重复性"], "list": [{"name": "A. 只看 1600×900", "scores": ["0 个", "1 次截图", "窄屏/矮屏全漏", "低"], "note": "首轮就是这么做的，看着完美，实际 1000×800 下图表已塌陷"}, {"name": "B. 三档截图（16:9 / 21:9 / 4:3）", "scores": ["3 个", "3 次截图", "覆盖三类典型屏", "高"], "note": "多花 2 次截图，换到断点误触发与图表塌陷两个真 bug"}], "verdict": "选 B。差量很清楚：多 2 次截图的成本，换来 3 个真实布局缺陷；只看一档等于把「恰好没翻车」当成「不会翻车」。"}, "items": [{"id": "M1", "type": "memory", "title": "CSS 断点必须严格小于目标比例，且用目标分辨率实测", "why": "`max-aspect-ratio: 16/9` 在精确 16:9 时成立，会把主场景误判为窄屏。这类错误静态检查发现不了，只在一眼看上去「正常」的尺寸下潜伏。", "evidence": "1600×900 下 KPI 被降为 2 列、双图压扁，断点下调到 8/5 后恢复", "confidence": "high", "scope": "cross", "prompt": "【写入长期记忆】\n请把以下内容追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## 响应式断点铁律（16:9 铺满类页面）\n- `@media (max-aspect-ratio: 16/9)` 在**精确** 16:9 时同样成立，会把主场景误判为窄屏\n- 若要「窄于 16:9 才降级」，断点必须严格小于目标比例，实测可用 `max-aspect-ratio: 8/5`\n- 断点类错误静态检查无法发现，必须在**目标分辨率**下截图确认未被误触发\n- 多档实测至少覆盖：16:9（主场景）、超宽（21:9）、偏窄（4:3）"}, {"id": "M2", "type": "memory", "title": "静态检查脚本不要对第三方库源码做全文匹配", "why": "检查 `NaN|Infinity` 这类字面量时，ECharts 等压缩库自带 `isNaN`，必然假阳性。假错比不检查更糟——会让人开始不信任检查结果。", "evidence": "check_report.py 首跑在 ECharts 内联代码上误报 D03 失败，改为只查渲染文本后归零", "confidence": "high", "scope": "recurring", "prompt": "【写入长期记忆】\n请把以下内容追加到用户级 MEMORY.md（C:\\Users\\Sxg\\.workbuddy\\user-5a696d89-dd2c-4075-9023-9ca1e8cf243b-personal\\MEMORY.md）：\n\n## 静态检查脚本编写铁律\n- 检查「源码字面量」（如 NaN/Infinity/undefined）前，先剥离 `<script>` 内联的第三方库，或改为只检查渲染文本与自有代码段\n- 内联 ECharts / React 等压缩产物会带来大量假阳性（如库内 `isNaN` 命中 `NaN`）\n- 假错会导致使用者不再信任检查结果，比漏检更危险\n- 每条规则上线前，先在一份**已知合格**的产物上跑一遍，必须全绿"}, {"id": "S1", "type": "skill", "title": "report-layout-multires-check（多分辨率布局验收流程）", "why": "布局类缺陷只在特定视口暴露，靠记性必漏。把「三档截图 + 断点边界校验」固化成可复用流程，比写进记忆更可靠。", "evidence": "本次 3 个真实布局问题全部由多档截图发现，静态检查 0 命中", "confidence": "high", "scope": "cross", "prompt": "【创建 Skill】\n请创建一个 WorkBuddy skill，名称：report-layout-multires-check\n\n- 触发：任何「一屏铺满」类 HTML 页面（看板 / 大屏 / 报表）交付前的布局验收\n- 输入：目标 HTML 路径 + 期望的基准宽高比（默认 16:9）\n- 流程：\n  ① 用 headless Edge 按三档视口各截一张：\n     · 基准档（如 1600×900）—— 主场景必须完全正常\n     · 超宽档（如 2560×1080）—— 容器应保持基准比例并水平居中，上下顶边\n     · 偏窄档（如 1000×800）—— 应触发单列降级且不出现横向滚动条\n  ② 每档检查四件事：容器宽高比、KPI 列数、图表绘图区高度、有无页面级横向滚动\n  ③ 断点自检：确认媒体查询在基准档**不被触发**（断点值须严格小于目标比例）\n  ④ 逐条输出问题清单，标明是「断点误触发 / 高度塌陷 / 溢出」哪一类\n- 交付：截图 + 问题清单 + 修复建议\n- 验收：三档截图齐备，基准档零问题，偏窄档无横向滚动"}, {"id": "P1", "type": "prompt", "title": "交付前自检问句：改为在提示词里前置「三档视口」约束", "why": "每次都要事后提醒「记得多截几张图」，说明约束没进开工时的提示词。把它前置成一句话，比事后补救省一轮。", "evidence": "本次两次返工都发生在交付后才发现布局问题，说明开工时没有视口约束", "confidence": "medium", "scope": "recurring", "prompt": "【优化提示词】\n请把以下约束前置到「报表/看板类 HTML 页面」任务的开工提示词中：\n\n改前：\n> 做一个 16:9 铺满的看板页面\n\n改后：\n> 做一个 16:9 铺满的看板页面。硬约束：\n> 1) `height:100vh`，body 无上下 padding，容器顶边\n> 2) `width:calc(100vh*16/9)`，宽屏时保持比例水平居中\n> 3) 窄于 16:9 时 `max-width:100vw` 兜底，宽度封顶、高度仍铺满\n> 4) 不允许页面级横向滚动条\n> 5) 断点须严格小于 16:9（否则精确 16:9 会被误判为窄屏）\n> 交付前请分别在 1600×900 / 2560×1080 / 1000×800 三档截图自检\n\n触发这条修改的失败现象：上一轮只看 1600×900 就交付，1000×800 下图表塌陷、y 轴刻度重叠。"}, {"id": "D1", "type": "manual", "title": "验证深度分级：静态校验 / 端到端跑通 / 多环境实测，不可互相替代", "why": "本次静态校验 0 FAIL 但仍有 7 个真实问题。验证手段的「覆盖层」不同，替代关系不成立——这是跨任务通用认知。", "evidence": "静态检查 15 条全过，端到端跑出 7 个问题，其中 3 个只有多分辨率截图才能发现", "confidence": "high", "scope": "cross", "prompt": "【写入改进手册】\n请把以下方法论写入项目改进手册（D:\\卢克先生WorkBuddy专区\\2026-10-19-14-28-59\\.workbuddy\\memory\\MEMORY.md）：\n\n## 验证深度分级（不可互相替代）\n\n适用场景：任何产物的交付前验收\n\n做法：按三层递进，每层解决不同类问题，不能跳过下层直接做上层：\n1. **静态校验**（脚本/规则）—— 查规范符合性：占位符残留、颜色合规、必填字段。速度快，但对「运行时行为」完全无能为力。\n2. **端到端跑通**（真实数据/真实路径）—— 查集成正确性：数据条数对不对、字段映射错没错、异常值有没有。能发现静态层 100% 漏掉的问题。\n3. **多环境实测**（不同视口/分辨率/数据规模）—— 查边界鲁棒性：窄屏、超宽、极值、空数据。多数「看起来正常」的产物在这一层翻车。\n\n反例边界：\n- 静态校验全绿 ≠ 可用。本次 15 条全过，仍有 7 个真实问题。\n- 端到端跑通 ≠ 稳。单数据集跑通可能只是「恰好没触发边界」。\n- 只有一层验证就宣布完成，是最常见的过早收尾。"}], "droppedIds": []};
+const D = RETRO_DATA;
+const TYPE_META = {
+  memory: {label:"记忆",     cls:"tag-memory"},
+  skill:  {label:"技能",     cls:"tag-skill"},
+  prompt: {label:"提示词",   cls:"tag-prompt"},
+  manual: {label:"改进手册", cls:"tag-manual"}
+};
 
-function render(){
-  const items = RETRO_DATA.items || [];
-  const mem = document.getElementById("memList");
-  const sk = document.getElementById("skillList");
-  mem.innerHTML = ""; sk.innerHTML = "";
-  items.forEach(it=>{
-    const box = it.type === "memory" ? mem : sk;
-    const card = document.createElement("div");
-    card.className = "card";
-    card.id = "card-"+it.id;
-    card.innerHTML = `
-      <label class="card-head">
-        <input type="checkbox" onchange="toggle('${it.id}', this.checked)">
-        <span><span class="card-id">${it.id}</span><span class="card-title">${it.title}</span></span>
-      </label>
-      <div class="card-why">${it.why}</div>
-      <div class="prompt-box" id="pb-${it.id}">
-        <div class="prompt-label">可执行提示词（勾选后可用）<span class="copy-mini" onclick="copyOne('${it.id}')">复制</span></div>
-        <textarea id="ta-${it.id}" readonly>${it.prompt}</textarea>
-      </div>`;
-    box.appendChild(card);
+/* ---------- 工具 ---------- */
+function el(tag, cls, text){
+  const n = document.createElement(tag);
+  if(cls) n.className = cls;
+  if(text != null) n.textContent = text;
+  return n;
+}
+function items(){
+  return (D.items || []).filter(it => it.confidence !== "low");
+}
+function itemsBy(type){
+  return items().filter(it => it.type === type);
+}
+
+/* ---------- 复盘笔记 ---------- */
+function renderNote(){
+  const f = D.findings || {};
+  document.getElementById("taskLine").textContent = D.task || "（未填写任务描述）";
+  const box = document.getElementById("layers");
+  box.innerHTML = "";
+
+  // L1 有效做法
+  const l1 = el("div","layer");
+  l1.appendChild(layerHead("L1","事实层 · 管用的做法","只收有结果支撑的，≤3 条"));
+  const worked = f.worked || [];
+  if(!worked.length){
+    l1.appendChild(el("div","empty","（未填写：本次没有可指认的有效做法）"));
+  } else {
+    worked.forEach((w,i) => {
+      const row = el("div","fitem");
+      row.appendChild(el("div","no", String(i+1)));
+      const t = el("div","txt");
+      t.appendChild(el("div",null,w.text));
+      const ev = el("div","ev" + (w.evidence ? "" : " miss"), w.evidence ? "依据：" + w.evidence : "缺少证据支撑");
+      t.appendChild(ev);
+      row.appendChild(t);
+      l1.appendChild(row);
+    });
+  }
+  box.appendChild(l1);
+
+  // L2 弯路
+  const l2 = el("div","layer");
+  l2.appendChild(layerHead("L2","归因层 · 走过的弯路","根因四选一：信息缺失 / 判断错误 / 执行失误 / 工具缺陷"));
+  const detours = f.detours || [];
+  if(!detours.length){
+    l2.appendChild(el("div","empty","（未填写：本次没有明显返工或试错）"));
+  } else {
+    detours.forEach((d,i) => {
+      const row = el("div","fitem");
+      row.appendChild(el("div","no", String(i+1)));
+      const t = el("div","txt");
+      const head = el("div");
+      if(d.rootCause) head.appendChild(el("span","rc", d.rootCause));
+      head.appendChild(document.createTextNode(d.text || ""));
+      t.appendChild(head);
+      if(d.fix){
+        const fx = el("div","fixline");
+        fx.appendChild(el("b",null,"下次避开："));
+        fx.appendChild(document.createTextNode(d.fix));
+        t.appendChild(fx);
+      }
+      row.appendChild(t);
+      l2.appendChild(row);
+    });
+  }
+  box.appendChild(l2);
+
+  // L3 第一步
+  const l3 = el("div","layer");
+  l3.appendChild(layerHead("L3","迁移层 · 下次第一步","必须是可执行的第一个动作，不是原则"));
+  if(f.firstStep){
+    l3.appendChild(el("div","firststep", f.firstStep));
+  } else {
+    l3.appendChild(el("div","empty","（未填写：没有「下次第一步」，本次复盘停在纸面）"));
+  }
+  box.appendChild(l3);
+
+  // L4 元改
+  const l4 = el("div","layer");
+  l4.appendChild(layerHead("L4","元改层 · Harness 该改哪一环","提示词 / 工具 / 记忆 / 技能", true));
+  const meta = f.meta;
+  if(meta){
+    const row = el("div","fitem");
+    row.appendChild(el("div","no","→"));
+    row.appendChild(el("div","txt", meta));
+    l4.appendChild(row);
+  } else {
+    l4.appendChild(el("div","empty","（未填写：未指出 harness 的改动点）"));
+  }
+  box.appendChild(l4);
+}
+function layerHead(code, name, sub, isMeta){
+  const h = el("div","layer-h");
+  h.appendChild(el("span","lv" + (isMeta ? " l4" : ""), code));
+  h.appendChild(document.createTextNode(name));
+  if(sub) h.appendChild(el("span","layer-sub", "· " + sub));
+  return h;
+}
+
+/* ---------- 差异对比台 ---------- */
+function renderVariants(){
+  const v = D.variants;
+  if(!v || !v.list || !v.list.length) return;
+  document.getElementById("vPanel").style.display = "block";
+  document.getElementById("vQuestion").textContent = v.question || "（未填写）";
+
+  const dims = v.dims || [];
+  const tbl = el("table");
+  const thead = el("thead");
+  const hr = el("tr");
+  hr.appendChild(el("th",null,"方案 / 维度"));
+  dims.forEach(d => hr.appendChild(el("th",null,d)));
+  hr.appendChild(el("th",null,"备注"));
+  thead.appendChild(hr);
+  tbl.appendChild(thead);
+
+  const tb = el("tbody");
+  v.list.forEach(row => {
+    const tr = el("tr");
+    tr.appendChild(el("td","nm", row.name || "—"));
+    dims.forEach((_,i) => tr.appendChild(el("td",null, (row.scores && row.scores[i] != null) ? row.scores[i] : "—")));
+    tr.appendChild(el("td","note", row.note || ""));
+    tb.appendChild(tr);
+  });
+  tbl.appendChild(tb);
+
+  const host = document.getElementById("vTable");
+  host.innerHTML = "";
+  host.appendChild(tbl);
+
+  const vd = document.getElementById("vVerdict");
+  vd.innerHTML = "";
+  vd.appendChild(el("b",null,"结论："));
+  vd.appendChild(document.createTextNode(v.verdict || "（未给结论——没有结论的对比等于没做）"));
+}
+
+/* ---------- 闸门 ---------- */
+function renderGates(){
+  const f = D.findings || {};
+  const w = (f.worked || []).length;
+  const dt = (f.detours || []).length;
+  const hasFirst = !!(f.firstStep && String(f.firstStep).trim());
+  const total = w + dt + (hasFirst ? 1 : 0);
+  const all = items();
+  const withEv = all.filter(it => it.evidence && String(it.evidence).trim()).length;
+  const pending = all.filter(it => it.confidence === "medium").length;
+  const dropped = (D.droppedIds || []).length;
+  const cov = all.length ? Math.round(withEv * 100 / all.length) : 0;
+
+  const cards = [
+    {k:"有效做法", v:w + "/3", s:"上限 3 条", st: w > 3 ? "bad" : ""},
+    {k:"弯路", v:dt + "/2", s:"上限 2 条", st: dt > 2 ? "bad" : ""},
+    {k:"笔记合计", v:String(total), s: total > 5 ? "超出 5 条（含第一步），建议拆成两次复盘" : "含「下次第一步」1 条", st: total > 5 ? "bad" : ""},
+    {k:"证据覆盖", v:cov + "%", s: withEv + "/" + all.length + " 项有依据", st: cov < 60 ? "warn" : ""},
+    {k:"待验证", v:String(pending), s: pending ? "建议先小范围试跑" : "无", st: pending ? "warn" : ""},
+    {k:"已滤除", v:String(dropped), s: dropped ? (D.droppedIds || []).join(" · ") + "（低把握）" : "低把握度未入页", st: ""}
+  ];
+  const box = document.getElementById("gates");
+  box.innerHTML = "";
+  cards.forEach(c => {
+    const g = el("div","gate" + (c.st ? " " + c.st : ""));
+    g.appendChild(el("div","gk", c.k));
+    g.appendChild(el("div","gv", c.v));
+    g.appendChild(el("div","gs", c.s));
+    box.appendChild(g);
   });
 }
 
+/* ---------- 候选卡 ---------- */
+function renderLists(){
+  Object.keys(TYPE_META).forEach(type => {
+    const host = document.getElementById("list-" + type);
+    if(!host) return;
+    host.innerHTML = "";
+    const arr = itemsBy(type);
+    const cnt = document.getElementById("cnt-" + type);
+    if(cnt) cnt.textContent = arr.length ? arr.length + " 项" : "无";
+    if(!arr.length){
+      host.appendChild(el("div","empty","（本类暂无候选——不是每个任务都需要四类都沉淀）"));
+      return;
+    }
+    arr.forEach(it => host.appendChild(buildCard(it)));
+  });
+}
+
+function buildCard(it){
+  const card = el("div","card");
+  card.id = "card-" + it.id;
+
+  const label = el("label","card-head");
+  const cb = el("input");
+  cb.type = "checkbox";
+  cb.addEventListener("change", () => toggle(it.id, cb.checked));
+  label.appendChild(cb);
+
+  const span = el("span");
+  span.appendChild(el("span","card-id", it.id));
+  span.appendChild(el("span","card-title", it.title));
+  label.appendChild(span);
+  card.appendChild(label);
+
+  if(it.why) card.appendChild(el("div","card-why", it.why));
+
+  // 元信息条
+  const metas = el("div","metas");
+  if(it.confidence === "medium") metas.appendChild(el("span","meta conf-medium","待验证"));
+  if(it.confidence === "high")   metas.appendChild(el("span","meta conf-high","已验证"));
+  if(it.scope){
+    const scopeTxt = {single:"仅本次", recurring:"同类重复", cross:"跨任务通用"}[it.scope] || it.scope;
+    metas.appendChild(el("span","meta scope-" + it.scope, scopeTxt));
+  }
+  if(it.evidence) metas.appendChild(el("span","meta meta-ev","依据：" + it.evidence));
+  if(metas.children.length) card.appendChild(metas);
+
+  // 提示词框
+  const pb = el("div","prompt-box");
+  pb.id = "pb-" + it.id;
+  const pl = el("div","prompt-label");
+  pl.appendChild(document.createTextNode("可执行提示词（勾选后可用）"));
+  const cp = el("span","copy-mini","复制");
+  cp.addEventListener("click", () => copyOne(it.id));
+  pl.appendChild(cp);
+  pb.appendChild(pl);
+
+  const ta = el("textarea");
+  ta.id = "ta-" + it.id;
+  ta.readOnly = true;
+  ta.value = it.prompt || "";
+  pb.appendChild(ta);
+  card.appendChild(pb);
+
+  return card;
+}
+
 function toggle(id, checked){
-  document.getElementById("pb-"+id).classList.toggle("show", checked);
-  document.getElementById("card-"+id).classList.toggle("checked", checked);
+  const pb = document.getElementById("pb-" + id);
+  const card = document.getElementById("card-" + id);
+  if(pb) pb.classList.toggle("show", checked);
+  if(card) card.classList.toggle("checked", checked);
+}
+
+function isChecked(id){
+  const cb = document.querySelector("#card-" + id + " input");
+  return !!(cb && cb.checked);
 }
 
 function selectAll(v){
-  (RETRO_DATA.items||[]).forEach(it=>{
-    const cb = document.querySelector(`#card-${it.id} input`);
-    cb.checked = v; toggle(it.id, v);
+  items().forEach(it => {
+    const cb = document.querySelector("#card-" + it.id + " input");
+    if(cb){ cb.checked = v; toggle(it.id, v); }
   });
 }
 
 function copyOne(id){
-  const ta = document.getElementById("ta-"+id);
-  copyText(ta.value);
+  const ta = document.getElementById("ta-" + id);
+  if(ta) copyText(ta.value);
 }
 
 function copyChecked(){
-  const sel = (RETRO_DATA.items||[]).filter(it=>document.querySelector(`#card-${it.id} input`).checked);
+  const sel = items().filter(it => isChecked(it.id));
   if(!sel.length){ alert("请先勾选至少一项"); return; }
-  const txt = sel.map(it=>`【${it.id}】${it.title}\n${it.prompt}`).join("\n\n－－－－－－\n\n");
+  const txt = sel.map(it => "【" + it.id + "】" + it.title + "\n" + it.prompt).join("\n\n－－－－－－\n\n");
   copyText(txt);
 }
 
 function buildSummary(){
-  const sel = (RETRO_DATA.items||[]).filter(it=>document.querySelector(`#card-${it.id} input`).checked);
+  const sel = items().filter(it => isChecked(it.id));
   if(!sel.length){ alert("请先勾选至少一项"); return; }
+  const order = ["memory","skill","prompt","manual"];
   let out = "请执行以下已确认的复盘沉淀项：\n\n";
-  sel.forEach(it=>{ out += `【${it.id}】${it.title}\n${it.prompt}\n\n`; });
-  document.getElementById("summaryBox").value = out.trim();
-  document.getElementById("summaryBox").scrollIntoView({behavior:"smooth"});
+  order.forEach(t => {
+    const g = sel.filter(it => it.type === t);
+    if(!g.length) return;
+    out += "=== " + TYPE_META[t].label + "类 ===\n\n";
+    g.forEach(it => { out += "【" + it.id + "】" + it.title + "\n" + it.prompt + "\n\n"; });
+  });
+  const box = document.getElementById("summaryBox");
+  box.value = out.trim();
+  box.scrollIntoView({behavior:"smooth"});
 }
 
 function copySummary(){
@@ -149,18 +489,84 @@ function copySummary(){
   copyText(v);
 }
 
+/* ---------- 复盘笔记导出（图片 2 的成品形态） ---------- */
+function noteText(){
+  const f = D.findings || {};
+  const lines = [];
+  lines.push("这次任务结束了，留一份笔记给下次的我：");
+  lines.push("");
+  lines.push("任务：" + (D.task || "（未填写）"));
+  lines.push("");
+  const w = (f.worked || []).slice(0,3);
+  const dt = (f.detours || []).slice(0,2);
+  let n = 1;
+  w.forEach(x => {
+    lines.push(n++ + ". 管用的做法：" + x.text + (x.evidence ? "（依据：" + x.evidence + "）" : ""));
+  });
+  dt.forEach(x => {
+    lines.push(n++ + ". 走过的弯路：" + x.text + (x.fix ? " → 下次避开方式：" + x.fix : ""));
+  });
+  if(f.firstStep) lines.push(n++ + ". 下次第一步先做：" + f.firstStep);
+  lines.push("");
+  lines.push("（共 " + (n-1) + " 条；没把握的已剔除）");
+  return lines.join("\n");
+}
+
+function copyNote(){ copyText(noteText()); }
+
+/* ---------- 通用复盘提示词（下次开工前直接复用） ---------- */
+function retroPromptText(){
+  const scopeHint = {
+    single:    "本次是单次任务，沉淀上限 1 条，优先提示词类；不要把一次性巧合写进长期记忆。",
+    recurring: "本次属同类重复任务，主力沉淀记忆（口径/事实）与技能（流程）。",
+    cross:     "本次经验跨任务通用，主力沉淀改进手册（方法论）与全局记忆。"
+  }[D.scope] || "先判断范围（单次 / 同类重复 / 跨任务通用），再决定沉淀层级。";
+
+  return [
+    "这次任务结束了，请写一份复盘笔记，留给下次的你。",
+    "",
+    "任务：【" + (D.task || "一句话描述这次的任务") + "】",
+    "",
+    "按下面四层来写，缺哪层直接说「本层无内容」，不要凑：",
+    "",
+    "1. 事实层 — 这次哪些做法管用？（只写有结果支撑的；每条必须附一句「依据：xxx」）",
+    "2. 归因层 — 哪些地方走了弯路？根因归到四类之一：信息缺失 / 判断错误 / 执行失误 / 工具缺陷；并给出一句「下次避开方式」。",
+    "3. 迁移层 — 下次遇到同类任务，第一步先做什么？（必须是可执行的第一个动作，不是原则）",
+    "4. 元改层 — Harness（提示词 / 工具 / 记忆 / 技能）哪一环该改？",
+    "",
+    "约束：",
+    "- 每条一句话；有效做法 ≤3 条、弯路 ≤2 条，合计不超过 5 条",
+    "- 没把握的不写；说不出依据的不写",
+    "- 最后再补一句：这条经验在什么条件下不成立（迁移边界）",
+    "",
+    scopeHint,
+    "",
+    "（下次开工前，把这份笔记直接发给 AI，或让它参考以前的复盘）"
+  ].join("\n");
+}
+function copyRetroPrompt(){ copyText(retroPromptText()); }
+
+/* ---------- 剪贴板 ---------- */
 function copyText(t){
   if(navigator.clipboard && navigator.clipboard.writeText){
     navigator.clipboard.writeText(t).then(()=>alert("已复制到剪贴板"), ()=>fallbackCopy(t));
   } else { fallbackCopy(t); }
 }
 function fallbackCopy(t){
-  const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta);
-  ta.select(); try{document.execCommand("copy"); alert("已复制");}catch(e){alert("复制失败，请手动选择");}
+  const ta = document.createElement("textarea");
+  ta.value = t; ta.style.position = "fixed"; ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand("copy"); alert("已复制"); }
+  catch(e){ alert("复制失败，请手动选择文本复制"); }
   document.body.removeChild(ta);
 }
 
-render();
+/* ---------- 启动 ---------- */
+renderNote();
+renderVariants();
+renderGates();
+renderLists();
 </script>
 </body>
 </html>
